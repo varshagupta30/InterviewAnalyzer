@@ -30,9 +30,14 @@ FLOW_NORMALIZER = 6.0
 
 # Quality gate thresholds
 MIN_PROCESSED_FRAMES_HARD = 12
-MIN_FACE_DETECT_RATIO_HARD = 0.10
+MIN_FACE_DETECT_RATIO_HARD = 0.05
 MIN_EYE_CONTACT_RATIO_HARD = 0.05
 MIN_GLOBAL_MOTION_HARD = 0.02
+MIN_FACE_STREAK_HARD = 3
+
+MIN_FACE_AREA_RATIO = 0.015
+MAX_FACE_AREA_RATIO = 0.45
+MIN_FACE_TEXTURE_VAR = 45.0
 
 MIN_PROCESSED_FRAMES_WARN = 80
 MIN_FACE_DETECT_RATIO_WARN = 0.20
@@ -104,6 +109,7 @@ class VideoAnalyzer:
 
         frame_count = int(feature_vector.get("frame_count", 0.0))
         face_detect_ratio = float(metadata.get("face_detect_ratio", feature_vector.get("eye_contact_ratio", 0.0)))
+        max_face_streak = int(metadata.get("max_face_streak", 0))
         eye_contact_ratio = float(feature_vector.get("eye_contact_ratio", 0.0))
         global_motion = float(feature_vector.get("global_motion_mean", 0.0))
 
@@ -117,6 +123,11 @@ class VideoAnalyzer:
         if face_detect_ratio < MIN_FACE_DETECT_RATIO_HARD:
             raise RuntimeError(
                 "No visible person detected in the recording. Please keep your face and upper body in frame and retry."
+            )
+
+        if max_face_streak < MIN_FACE_STREAK_HARD:
+            raise RuntimeError(
+                "No stable face/person detected in the recording. Please keep your face clearly visible and retry."
             )
 
         # Reject if face is weakly detected and there is almost no camera-facing engagement signal.
@@ -181,6 +192,8 @@ class VideoAnalyzer:
         prev_gray: Optional[np.ndarray] = None
         prev_face_center_y: Optional[float] = None
         baseline_face_area: Optional[float] = None
+        face_streak = 0
+        max_face_streak = 0
         analysis_start = time.time()
 
         while True:
@@ -237,16 +250,49 @@ class VideoAnalyzer:
             if len(faces) > 0:
                 # Use largest face for stability.
                 faces = sorted(faces, key=lambda b: b[2] * b[3], reverse=True)
-                face_detected_values.append(1.0)
                 x, y, w, h = faces[0]
                 x = int(max(0, x))
                 y = int(max(0, y))
                 w = int(max(1, w))
                 h = int(max(1, h))
 
+                face_area_ratio = (w * h) / frame_area
+
+                # Validate face candidate to reduce false positives on empty/noisy frames.
+                face_roi = gray[y : min(frame_h, y + h), x : min(frame_w, x + w)]
+                eyes = eye_cascade.detectMultiScale(face_roi, 1.1, 4) if face_roi.size > 0 else []
+                texture_var = float(cv2.Laplacian(face_roi, cv2.CV_64F).var()) if face_roi.size > 0 else 0.0
+                valid_face = (
+                    (MIN_FACE_AREA_RATIO <= face_area_ratio <= MAX_FACE_AREA_RATIO)
+                    and (len(eyes) >= 1)
+                    and (texture_var >= MIN_FACE_TEXTURE_VAR)
+                )
+
+                if not valid_face:
+                    face_detected_values.append(0.0)
+                    face_streak = 0
+
+                    eye_contact_values.append(0.0)
+                    pose_stability_values.append(0.0)
+                    shoulder_alignment_values.append(0.0)
+                    head_tilt_values.append(0.18)
+                    forward_lean_values.append(0.18)
+                    slouch_values.append(1.0)
+                    smile_values.append(0.0)
+                    tense_values.append(1.0)
+                    eyebrow_values.append(0.0)
+                    nod_values.append(0.0)
+                    face_touch_values.append(0.0)
+
+                    prev_gray = gray
+                    continue
+
+                face_detected_values.append(1.0)
+                face_streak += 1
+                max_face_streak = max(max_face_streak, face_streak)
+
                 face_cx = (x + (w / 2.0)) / frame_w
                 face_cy = (y + (h / 2.0)) / frame_h
-                face_area_ratio = (w * h) / frame_area
                 if baseline_face_area is None:
                     baseline_face_area = face_area_ratio
 
@@ -269,8 +315,6 @@ class VideoAnalyzer:
                 slouch_values.append(1.0 if face_cy > 0.50 else 0.0)
 
                 # Head tilt proxy using eye alignment when eyes are detectable.
-                face_roi = gray[y : min(frame_h, y + h), x : min(frame_w, x + w)]
-                eyes = eye_cascade.detectMultiScale(face_roi, 1.1, 4)
                 if len(eyes) >= 2:
                     eyes = sorted(eyes, key=lambda e: e[2] * e[3], reverse=True)[:2]
                     e1, e2 = eyes[0], eyes[1]
@@ -332,6 +376,7 @@ class VideoAnalyzer:
                 face_touch_values.append(1.0 if (face_region_motion > (hand_activity * 0.8) and hand_activity > 0.05) else 0.0)
             else:
                 face_detected_values.append(0.0)
+                face_streak = 0
                 eye_contact_values.append(0.0)
                 pose_stability_values.append(0.0)
                 shoulder_alignment_values.append(0.0)
@@ -406,6 +451,7 @@ class VideoAnalyzer:
             "processed_frames": sampled_frames,
             "processing_wall_time_seconds": round(analysis_end - analysis_start, 2),
             "face_detect_ratio": self._mean(face_detected_values),
+            "max_face_streak": max_face_streak,
         }
         return feature_vector, metadata
 
