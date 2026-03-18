@@ -1,0 +1,16 @@
+# Interview Question Bank
+# Format: [LEVEL] Question text
+# Levels: EASY, MODERATE
+# Add your own questions below — one per line
+# Lines starting with # are ignored
+
+[EASY] Tell me about yourself and your background.
+[EASY] What are your greatest strengths?
+[EASY] Why are you interested in this role?
+[EASY] Where do you see yourself in 5 years?
+[EASY] What motivates you in your work?
+[MODERATE] Describe a situation where you had to handle a difficult colleague.
+[MODERATE] Tell me about a time you failed and what you learned from it.
+[MODERATE] How do you manage multiple deadlines under pressure?
+[MODERATE] Give an example of when you showed leadership without a formal title.
+[MODERATE] How do you approach learning a completely new skill or technology?

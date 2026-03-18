@@ -1,0 +1,16 @@
+# Python cache and bytecode
+__pycache__/
+*.pyc
+
+# Virtual envs
+.venv/
+venv/
+
+# Runtime app data
+uploads/
+results/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+.vscode/

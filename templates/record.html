@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Record Interview Response</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
+</head>
+<body>
+  <main class="container">
+    <h1 class="gradient-text">Record Your Response</h1>
+    <div class="card">
+      <h2>Question</h2>
+      <p class="question" id="questionText">{{ question }}</p>
+
+      <div class="video-wrap">
+        <video id="preview" autoplay muted playsinline></video>
+      </div>
+
+      <div class="timer-row">
+        <div id="countdown" class="timer">Get ready...</div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" id="startBtn">Start 60s Recording</button>
+        <button class="btn btn-secondary" id="stopBtn" disabled>Stop</button>
+      </div>
+
+      <p id="status" class="status">Camera initializing...</p>
+    </div>
+  </main>
+
+  <script>
+    window.RECORD_CONFIG = {
+      durationSeconds: {{ duration_seconds }},
+      question: {{ question|tojson }}
+    };
+  </script>
+  <script src="{{ url_for('static', filename='js/recorder.js') }}"></script>
+</body>
+</html>
