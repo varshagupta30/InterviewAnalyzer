@@ -1,0 +1,36 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #8b5cf6; /* Vibrant Purple */
+  --color-secondary: #0ea5e9; /* Deep Sky Blue */
+  --color-background: #0f172a; /* Slate 900 */
+  --color-surface: rgba(30, 41, 59, 0.7); /* Glassmorphic Surface */
+}
+
+@layer base {
+  body {
+    @apply bg-[var(--color-background)] text-slate-200 min-h-screen font-sans antialiased;
+    background-image: 
+      radial-gradient(at 0% 0%, rgba(139, 92, 246, 0.15) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(14, 165, 233, 0.15) 0px, transparent 50%);
+    background-attachment: fixed;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-[var(--color-surface)] backdrop-blur-md border border-slate-700/50 rounded-2xl shadow-xl;
+  }
+  .glass-panel-hover {
+    @apply transition-all duration-300 hover:shadow-2xl hover:border-slate-600/50 hover:-translate-y-1;
+  }
+  .btn-primary {
+    @apply px-6 py-3 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-semibold shadow-lg shadow-violet-500/30 transition-all hover:shadow-violet-500/50 hover:scale-105 active:scale-95 flex items-center justify-center gap-2;
+  }
+  .btn-secondary {
+    @apply px-6 py-3 rounded-xl bg-slate-800/80 backdrop-blur border border-slate-700 text-slate-200 font-semibold transition-all hover:bg-slate-700 hover:border-slate-600 active:scale-95 flex items-center justify-center gap-2;
+  }
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-cyan-400;
+  }
+}
