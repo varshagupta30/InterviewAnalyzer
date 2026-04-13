@@ -1,0 +1,14 @@
+{
+  "confidence": {
+    "audio": 0.4,
+    "vision": 0.4,
+    "nlp": 0.2
+  },
+  "communication": {
+    "audio": 0.5,
+    "nlp": 0.5
+  },
+  "technical": {
+    "nlp": 1.0
+  }
+}

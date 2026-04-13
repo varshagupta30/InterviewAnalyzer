@@ -1,0 +1,90 @@
+{
+  "session_id": "2b87ea68-8dc9-45d3-96c9-ca6685861bf7",
+  "timestamp": "2026-04-13T05:09:09.391492",
+  "transcript": {
+    "full_text": "This one time when I had to, when I had to explore overcome a significant technical challenge was today. So today we are supposed to submit our AI project and we have started working on it just today, it's self-in-the-mourning. So that might add me positively as a fast, fast, a pretty fast worker so that could add up as I do not want to waste a set. So handling disagreements with my team members or stakeholders, I generally should be talked through them to understand what's actually situation. And if there is any disagreement between team members, it's usually because collaborative issues are personal issues of work issues. So in that case, if that's the first issue I have, all I can do is just say to resolve it themselves and if it's a work issue, some technical issue, then we could sort out ourselves like form a small team from the team itself and they sort it out by themselves. So for the stakeholders, however, then it's a job of convincing them properly. What is my approach to learning completely new technology? In this age of AI, I really want to use it well to my advantage. So I probably just using AI to learn on the new scale and ensure to build projects depending on that so that I know I really understand it.",
+    "segments": [
+      {
+        "start": 0.0,
+        "end": 11.0,
+        "text": "This one time when I had to, when I had to explore overcome a significant technical challenge was today."
+      },
+      {
+        "start": 11.0,
+        "end": 18.0,
+        "text": "So today we are supposed to submit our AI project and we have started working on it just today, it's self-in-the-mourning."
+      },
+      {
+        "start": 19.0,
+        "end": 33.0,
+        "text": "So that might add me positively as a fast, fast, a pretty fast worker so that could add up as I do not want to waste a set."
+      },
+      {
+        "start": 35.0,
+        "end": 41.0,
+        "text": "So handling disagreements with my team members or stakeholders, I generally should be talked through them to understand what's actually situation."
+      },
+      {
+        "start": 42.0,
+        "end": 49.0,
+        "text": "And if there is any disagreement between team members, it's usually because collaborative issues are personal issues of work issues."
+      },
+      {
+        "start": 49.0,
+        "end": 66.0,
+        "text": "So in that case, if that's the first issue I have, all I can do is just say to resolve it themselves and if it's a work issue, some technical issue, then we could sort out ourselves like form a small team from the team itself and they sort it out by themselves."
+      },
+      {
+        "start": 67.0,
+        "end": 71.0,
+        "text": "So for the stakeholders, however, then it's a job of convincing them properly."
+      },
+      {
+        "start": 73.0,
+        "end": 80.0,
+        "text": "What is my approach to learning completely new technology? In this age of AI, I really want to use it well to my advantage."
+      },
+      {
+        "start": 80.0,
+        "end": 91.0,
+        "text": "So I probably just using AI to learn on the new scale and ensure to build projects depending on that so that I know I really understand it."
+      }
+    ]
+  },
+  "audio_features": {
+    "speech_rate_wpm": 149.7,
+    "pause_count": 2,
+    "avg_pause_duration": 0.5,
+    "filler_words": {
+      "um": 0,
+      "like": 1
+    },
+    "confidence_score": 0.85
+  },
+  "vision_features": {
+    "eye_contact_score": 0.79,
+    "smile_frequency": 0.6,
+    "head_movement_variance": 0.3,
+    "posture_score": 0.8,
+    "emotion_distribution": {
+      "neutral": 0.6,
+      "happy": 0.3,
+      "nervous": 0.1
+    }
+  },
+  "nlp_analysis": {
+    "relevance_score": 0.93,
+    "coherence_score": 1.0,
+    "keyword_match_score": 0.7,
+    "answer_length_score": 1.0
+  },
+  "final_scores": {
+    "confidence": 0.86,
+    "communication": 0.92,
+    "technical": 0.7,
+    "overall": 0.82
+  },
+  "feedback": [
+    "Great job! Your performance was solid across the board."
+  ]
+}
