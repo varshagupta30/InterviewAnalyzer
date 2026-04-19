@@ -10,7 +10,16 @@ venv/
 uploads/
 results/
 
+# Node.js
+node_modules/
+.next/
+
+# Session Data
+data/sessions/
+data/uploads/
+
 # OS/editor files
 .DS_Store
 Thumbs.db
 .vscode/
+.idea/

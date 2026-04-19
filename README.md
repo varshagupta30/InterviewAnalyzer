@@ -1,172 +1,90 @@
-# Interview Analyzer
+# InterviewIQ — Multimodal AI Interview Performance Analyzer
 
-Interview Analyzer is a Flask web application that records a 60-second interview response, analyzes non-verbal behavior, and returns dimension-wise scores with actionable feedback.
+![InterviewIQ Banner](https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&q=80&w=2070)
 
-## Features
+InterviewIQ is a cutting-edge, multimodal AI platform designed to provide professional-grade feedback on interview performance. By leveraging computer vision, audio signal processing, and advanced NLP, the system provides a granular breakdown of how a candidate is perceived across multiple dimensions.
 
-- Random interview question selection from an editable question bank.
-- Browser-based webcam recording using MediaRecorder (60 seconds).
-- Server-side video analysis pipeline with modular analyzers:
-	- posture/body language
-	- hand gestures
-	- face/eye-contact signals
-- Rule-based scoring engine (ML-ready interface for future model swap).
-- Structured results page with score breakdown and feedback sections.
+## 🚀 Core Features
 
-## Project Structure
+- **Multimodal Intelligence**: Simultaneous analysis of video (facial expressions), audio (prosody and pace), and text (semantic relevance).
+- **Performance Intelligence Dashboard**: Rich data visualization featuring:
+  - **Animated Competency Rings**: Overall, Confidence, Communication, and Technical Depth scores.
+  - **Biometric Sentiment Analysis**: Emotion distribution tracking (Positive, Neutral, Stress).
+  - **Competency Radar**: Visual mapping of core strengths.
+  - **Indexed Timeline Transcript**: Full session transcription with temporal markers.
+- **Actionable AI Feedback**: Categorized Strengths and Opportunities for improvement.
+- **Granular Audio Metrics**: WPM (Words Per Minute) tracking, filler word detection (um, like, so), and pause analysis.
 
-interview-analyzer/
-├── app.py
-├── questions.txt
-├── requirements.txt
-├── analyzer/
-│   ├── __init__.py
-│   ├── video_analyzer.py
-│   ├── pose_analyzer.py
-│   ├── gesture_analyzer.py
-│   ├── face_analyzer.py
-│   ├── scorer.py
-│   └── feedback.py
-├── ml/
-│   ├── model.py
-│   ├── dataset/
-│   └── sample_dataset.py
-├── static/
-│   ├── css/style.css
-│   └── js/recorder.js
-└── templates/
-		├── index.html
-		├── record.html
-		└── results.html
+## 🛠️ Tech Stack
 
-## Tech Stack
+### Frontend
+- **Framework**: [Next.js 16](https://nextjs.org/) (Turbopack)
+- **Styling**: Tailwind CSS 4.0 (Modern Glassmorphism)
+- **Icons**: Lucide React
+- **Charts**: Recharts (Radar, Area, Responsive Containers)
 
-- Python
-- Flask
-- OpenCV
-- MediaPipe
-- NumPy
-- Vanilla HTML/CSS/JS
+### Backend
+- **Framework**: FastAPI (Python 3.10+)
+- **Models**:
+  - **OpenAI Whisper**: High-fidelity speech-to-text.
+  - **BART-Large-MNLI**: Zero-shot classification for semantic relevance.
+  - **Computer Vision**: Facial landmark and expression analysis.
+- **Services**: Modular architecture for Audio, Vision, NLP, and Scoring aggregation.
 
-## Setup
+## 🏁 Getting Started
 
-1) Clone repository
+### Prerequisites
+- Python 3.10+
+- Node.js 20+
+- NVIDIA GPU (Recommended for Whisper/BART acceleration)
 
-git clone https://github.com/KhushTheNoob/InterviewAnalyzer.git
-cd InterviewAnalyzer
+### Backend Setup
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Create and activate a virtual environment:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+3. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Start the API server:
+   ```bash
+   python main.py
+   ```
 
-2) Create virtual environment (recommended)
+### Frontend Setup
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Start the development server:
+   ```bash
+   npm run dev
+   ```
 
-Windows (PowerShell):
+## 📊 How It Works
 
-python -m venv .venv
-.venv\Scripts\Activate.ps1
+1. **Capture**: The system records audio and video via the browser.
+2. **Transcription**: Whisper processes the audio stream into time-stamped text.
+3. **Analysis**:
+   - **Audio Service** calculates WPM and detects filler word frequency.
+   - **Vision Service** analyzes facial landmarks for eye contact and smiles.
+   - **NLP Service** compares responses against technical benchmarks.
+4. **Scoring**: The **Scoring Engine** aggregates metrics into four normalized axes.
+5. **Reporting**: Next.js renders a premium, interactive performance report.
 
-3) Install dependencies
+## 📝 License
 
-pip install -r requirements.txt
+Distributed under the MIT License. See `LICENSE` for more information.
 
-## Run the App
-
-python app.py
-
-Open in browser:
-
-http://127.0.0.1:5000
-
-## Web Flow
-
-1. Landing page loads one question from questions.txt.
-2. Candidate opens recording page.
-3. Browser records webcam + mic for 60 seconds.
-4. Video uploads to /upload.
-5. Backend analyzes frames and computes scores.
-6. Results page shows:
-	 - confidence_score
-	 - posture_score
-	 - gesture_score
-	 - body_language_score
-	 - overall_score
-	 - strengths/improvements/mistakes
-
-## Routes
-
-- GET /  → Question page
-- GET /record  → Recording interface
-- POST /upload  → Video upload + analysis trigger
-- GET /results/<id>  → Session result view
-
-## Questions File
-
-Edit questions in questions.txt.
-
-Format:
-
-[EASY] Tell me about yourself.
-[MODERATE] Describe a time you handled conflict at work.
-
-Lines starting with # are ignored.
-
-## Scoring Design (Current Phase)
-
-The current scorer is rule-based and uses stable feature-vector keys so you can later replace logic with a trained model without changing the API contract.
-
-Primary dimensions:
-
-- confidence_score
-- posture_score
-- gesture_score
-- body_language_score
-- overall_score (weighted aggregate)
-
-Future ML integration points:
-
-- analyzer/scorer.py
-- ml/model.py
-
-## Notes on MediaPipe Compatibility
-
-Some environments install a MediaPipe build that exposes only tasks modules and not mediapipe.solutions.
-
-Current behavior in this project:
-
-- If mediapipe.solutions.holistic is available, the app uses full holistic analysis.
-- If not available, it automatically falls back to an OpenCV-based analyzer path so the app still runs.
-
-This keeps the project runnable while preserving a path to full landmark-level analysis in compatible environments.
-
-## Output Data
-
-- Uploaded recordings are stored in uploads/.
-- Session result JSON files are stored in results/.
-
-These runtime folders are ignored by git via .gitignore.
-
-## Troubleshooting
-
-1) Camera not opening in browser
-
-- Ensure browser camera/mic permissions are allowed.
-- Use https or localhost (127.0.0.1) for media device access.
-
-2) Import errors for Flask/OpenCV/MediaPipe
-
-- Confirm active venv.
-- Reinstall requirements:
-	pip install -r requirements.txt
-
-3) Analysis seems weak or unstable
-
-- Improve lighting.
-- Keep full upper body and both hands in frame.
-- Keep camera at eye level.
-
-## Development Notes
-
-- Keep analyzer functions small and focused for easy edits.
-- Thresholds are defined as named constants in each analyzer module.
-- Add your own dataset rows in ml/dataset/ for future training workflows.
-
-## License
-
-No license specified yet. Add a LICENSE file if you want to make usage terms explicit.
+---
+Built with ❤️ by the InterviewIQ Team.

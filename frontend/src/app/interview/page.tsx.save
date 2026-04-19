@@ -1,0 +1,255 @@
+"use client";
+OOA
+iOBOBOBOBmport { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Camera, Loader2, StopCircle, PlayCircle, ChevronRight, Sparkles, Brain, Video, Mic } from "lucide-react";
+import classNames from "classnames";
+
+const QUESTIONS = [
+  "Tell me about a time you had to overcome a significant technical challenge.",
+  "How do you handle disagreements with team members or stakeholders?",
+  "What is your approach to learning a completely new technology?"
+];
+
+export default function InterviewPage() {
+  const [recording, setRecording] = useState(false);
+  const [processing, setProcessing] = useState(false);
+  const [stream, setStream] = useState<MediaStream | null>(null);
+  
+  const [questionIndex, setQuestionIndex] = useState(0);
+  
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<BlobPart[]>([]);
+  const router = useRouter();
+
+  const startRecording = async () => {
+    try {
+      const ms = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+      setStream(ms);
+      if (videoRef.current) {
+        videoRef.current.srcObject = ms;
+      }
+      
+      const mediaRecorder = new MediaRecorder(ms);
+      mediaRecorderRef.current = mediaRecorder;
+      chunksRef.current = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+
+      mediaRecorder.onstop = handleUpload;
+      mediaRecorder.start();
+      setRecording(true);
+    } catch (err) {
+      console.error("Failed to access camera", err);
+      alert("Microphone and Camera permissions are required.");
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && recording) {
+      mediaRecorderRef.current.stop();
+      setRecording(false);
+      setProcessing(true);
+      
+      if (stream) {
+        stream.getTracks().forEach(track => track.stop());
+      }
+    }
+  };
+
+  const nextQuestion = () => {
+    if (questionIndex < QUESTIONS.length - 1) {
+      setQuestionIndex(prev => prev + 1);
+    } else {
+      stopRecording();
+    }
+  };
+
+  const handleUpload = async () => {
+    const blob = new Blob(chunksRef.current, { type: "video/webm" });
+    const formData = new FormData();
+    formData.append("video_file", blob, "interview.webm");
+    
+    try {
+      const res = await fetch("http://127.0.0.1:8000/api/analyze", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      
+      if (res.ok && data.session_id) {
+        router.push(`/results/${data.session_id}`);
+      } else {
+        alert("Error processing video: " + data.detail);
+        setProcessing(false);
+      }
+    } catch (err) {
+      console.error("Upload failed", err);
+      alert("Failed to connect to AI engine.");
+      setProcessing(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen p-4 md:p-8 flex flex-col items-center justify-center relative dot-grid overflow-hidden">
+      
+      {/* Subtle background glow */}
+      <div className="absolute top-1/4 -left-20 w-96 h-96 bg-violet-600/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute bottom-1/4 -right-20 w-96 h-96 bg-cyan-600/10 rounded-full blur-[120px] pointer-events-none" />
+
+      <div className="max-w-6xl w-full flex flex-col lg:flex-row gap-8 relative z-10 animate-fade-in">
+        
+        {/* Main Recording Interface */}
+        <div className="flex-1 flex flex-col gap-6">
+          <div className="glass-panel p-8 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none group-hover:scale-110 transition-transform">
+              <Brain size={120} />
+            </div>
+
+            {/* Question Header */}
+            <div className="w-full text-center mb-8">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-[10px] font-black uppercase tracking-widest mb-4">
+                <Sparkles size={12} className={recording ? "animate-pulse" : ""} /> Question {questionIndex + 1} of {QUESTIONS.length}
+              </div>
+              <h2 className="text-2xl md:text-3xl font-black text-white min-h-[5rem] flex items-center justify-center leading-tight tracking-tight px-4">
+                "{QUESTIONS[questionIndex]}"
+              </h2>
+            </div>
+            
+            {/* Viewport */}
+            <div className="w-full aspect-video bg-slate-950 rounded-2xl overflow-hidden mb-8 border border-slate-800 relative shadow-2xl group/viewport">
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                muted 
+                playsInline 
+                className="w-full h-full object-cover"
+              />
+              
+              {!recording && !stream && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-900/60 backdrop-blur-md">
+                  <div className="w-20 h-20 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-500 mb-6 group-hover/viewport:scale-110 transition-transform">
+                    <Video size={36} />
+                  </div>
+                  <p className="text-sm font-bold uppercase tracking-widest text-slate-500">Ready to start?</p>
+                </div>
+              )}
+              
+              {recording && (
+                <div className="absolute top-6 right-6 flex items-center gap-3 px-4 py-2 bg-slate-950/80 backdrop-blur border border-red-500/50 rounded-full">
+                  <div className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_10px_rgba(239,68,68,0.5)]" />
+                  <span className="text-xs font-black text-red-500 uppercase tracking-widest">Live Engine Recording</span>
+                </div>
+              )}
+
+              {/* Status Icons Overlay */}
+              {recording && (
+                <div className="absolute bottom-6 left-6 flex gap-2">
+                  <div className="p-2 rounded-lg bg-slate-950/80 backdrop-blur border border-slate-800 text-cyan-400">
+                    <Video size={16} />
+                  </div>
+                  <div className="p-2 rounded-lg bg-slate-950/80 backdrop-blur border border-slate-800 text-emerald-400">
+                    <Mic size={16} />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Controls */}
+            <div className="flex gap-4 w-full justify-center">
+              {!recording && !processing ? (
+                <button onClick={startRecording} className="btn-primary w-full md:w-auto px-12 group">
+                  <PlayCircle size={20} className="group-hover:scale-110 transition-transform" />
+                  Initiate Simulator
+                </button>
+              ) : processing ? (
+                <div className="btn-secondary !opacity-100 w-full md:w-auto px-12 border-violet-500/30">
+                  <Loader2 size={20} className="animate-spin text-violet-400" />
+                  <span className="text-gradient font-black">Synthesizing Results...</span>
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
+                  <button 
+                    onClick={nextQuestion} 
+                    className={classNames(
+                      "btn-primary px-10 group",
+                      questionIndex === QUESTIONS.length - 1 ? "!bg-emerald-600 hover:!bg-emerald-500 shadow-emerald-500/20" : ""
+                    )}
+                  >
+                    {questionIndex === QUESTIONS.length - 1 ? "Complete Analysis" : "Next Response"}
+                    <ChevronRight size={20} className="group-hover:translate-x-1 transition-transform" />
+                  </button>
+                  <button 
+                    onClick={stopRecording} 
+                    className="btn-secondary !text-slate-400 border-slate-800 hover:!bg-rose-500/10 hover:!border-rose-500/30 hover:!text-rose-400"
+                  >
+                    <StopCircle size={20} /> End Session
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Sidebar Status */}
+        <div className="w-full lg:w-96 flex flex-col gap-6 animate-fade-in-up" style={{ animationDelay: '200ms' }}>
+          <div className="glass-panel p-8 flex-1 glass-panel-hover">
+            <div className="flex items-center gap-3 mb-8 pb-4 border-b border-slate-800">
+              <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center text-violet-400 border border-violet-500/20">
+                <Target size={20} />
+              </div>
+              <h3 className="font-black text-white tracking-tight uppercase text-sm">Session Roadmap</h3>
+            </div>
+            
+            <ul className="space-y-6">
+              {QUESTIONS.map((q, idx) => (
+                <li key={idx} className="flex gap-4 items-start relative">
+                  {idx !== QUESTIONS.length - 1 && (
+                    <div className={classNames(
+                      "absolute top-8 left-4 w-px h-10 bg-slate-800",
+                      idx < questionIndex ? "bg-emerald-500/30" : ""
+                    )} />
+                  )}
+                  
+                  <div className={classNames(
+                    "w-8 h-8 rounded-xl flex items-center justify-center shrink-0 text-[10px] font-black transition-all duration-500",
+                    idx < questionIndex ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30" : 
+                    idx === questionIndex ? "bg-violet-600 text-white shadow-lg shadow-violet-600/40 border border-violet-400" : 
+                    "bg-slate-900 text-slate-600 border border-slate-800"
+                  )}>
+                    {idx + 1}
+                  </div>
+                  <div className="pt-1">
+                    <p className={classNames(
+                      "text-xs leading-relaxed font-bold transition-colors duration-500",
+                      idx < questionIndex ? "text-slate-500 line-through decoration-slate-700" :
+                      idx === questionIndex ? "text-slate-100" : "text-slate-600"
+                    )}>
+                      {q}
+                    </p>
+                    {idx === questionIndex && recording && (
+                      <span className="text-[10px] font-black text-violet-400 mt-2 block animate-pulse">ACTIVE ANALYSIS...</span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-12 p-6 rounded-2xl bg-slate-950/50 border border-slate-800/80">
+              <div className="flex items-center gap-3 mb-4">
+                <ShieldCheck className="text-cyan-400" size={16} />
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Privacy Guard</span>
+              </div>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Biometric data is processed locally and encrypted during synthesis. We do not store raw video frames after analysis.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
