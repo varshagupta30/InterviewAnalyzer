@@ -1,5 +1,6 @@
 import whisper
 import os
+import torch
 
 _model = None
 
@@ -11,7 +12,13 @@ def get_model():
         print("Please do NOT close the server. Downloading...")
         print("==================================================================")
         try:
-            _model = whisper.load_model("base")
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            if device == "cuda":
+                print("CUDA detected! Running Whisper on GPU 🚀")
+            else:
+                print("CUDA not detected. Running Whisper on CPU.")
+                
+            _model = whisper.load_model("base", device=device)
             print("Whisper Model successfully downloaded and loaded into memory! ✅")
         except Exception as e:
             print(f"Failed to load Whisper Model: {e}")

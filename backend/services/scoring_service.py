@@ -17,12 +17,16 @@ def calculate_scores(audio_features: dict, vision_features: dict, nlp_analysis: 
     weights = load_weights()
     
     # Normalize features to 0-1
-    # Audio norm
-    audio_score = audio_features.get("confidence_score", 0.0)
-    audio_comm_score = max(0.0, 1.0 - (audio_features.get("pause_count", 0) * 0.15))
+    # Audio norm - Stricter baseline and heavy penalties
+    audio_score = audio_features.get("confidence_score", 0.0) * 0.85 # Reduce baseline artificially
+    
+    filler_word_count = sum(audio_features.get("filler_words", {}).values())
+    audio_comm_score = max(0.0, 1.0 - (audio_features.get("pause_count", 0) * 0.2) - (filler_word_count * 0.1))
     
     # Vision norm
     vision_score = vision_features.get("eye_contact_score", 0.0)
+    if vision_score < 0.9:
+        vision_score *= 0.8 # Penalty multiplier for poor eye contact
     
     # NLP norm
     nlp_conf_score = nlp_analysis.get("coherence_score", 0.0)
@@ -56,14 +60,18 @@ def calculate_scores(audio_features: dict, vision_features: dict, nlp_analysis: 
     }
     
     feedback = []
-    if audio_features.get("pause_count", 0) > 2:
-        feedback.append("Try to reduce the number of long pauses.")
-    if vision_features.get("eye_contact_score", 1.0) < 0.8:
-        feedback.append("Maintain better eye contact with the camera.")
-    if nlp_analysis.get("relevance_score", 1.0) < 0.75:
-        feedback.append("Make sure your answers stay relevant to the topic.")
+    if audio_features.get("pause_count", 0) >= 1:
+        feedback.append("You had long pauses. Try to keep your delivery smooth.")
+    if filler_word_count > 0:
+        feedback.append(f"You used filler words like 'um' or 'like' {filler_word_count} time(s). Try to minimize these.")
+    if vision_features.get("eye_contact_score", 1.0) < 0.9:
+        feedback.append("Maintain stronger eye contact with the camera (above 90%).")
+    if nlp_analysis.get("relevance_score", 1.0) < 0.85:
+        feedback.append("Your answer drifted off-topic. Stay highly focused on the question.")
+    if nlp_analysis.get("answer_length_score", 1.0) < 0.5:
+        feedback.append("Your answer was either too brief or excessively rambling. Aim for 40-150 words.")
     
     if not feedback:
-        feedback.append("Great job! Your performance was solid across the board.")
+        feedback.append("Great job! Your performance was exceptional across the board.")
         
     return final_scores, feedback

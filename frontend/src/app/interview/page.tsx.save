@@ -1,8 +1,8 @@
 "use client";
-
-import { useState, useRef } from "react";
+OOA
+iOBOBOBOBmport { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, StopCircle, PlayCircle, ChevronRight, Sparkles, Brain, Video, Mic, Target, ShieldCheck } from "lucide-react";
+import { Camera, Loader2, StopCircle, PlayCircle, ChevronRight, Sparkles, Brain, Video, Mic } from "lucide-react";
 import classNames from "classnames";
 
 const QUESTIONS = [
@@ -115,7 +115,7 @@ export default function InterviewPage() {
                 <Sparkles size={12} className={recording ? "animate-pulse" : ""} /> Question {questionIndex + 1} of {QUESTIONS.length}
               </div>
               <h2 className="text-2xl md:text-3xl font-black text-white min-h-[5rem] flex items-center justify-center leading-tight tracking-tight px-4">
-                &quot;{QUESTIONS[questionIndex]}&quot;
+                "{QUESTIONS[questionIndex]}"
               </h2>
             </div>
             

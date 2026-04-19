@@ -28,6 +28,21 @@ def get_session(session_id: str):
     if not os.path.exists(DATA_DIR):
         raise HTTPException(status_code=404, detail="Session not found")
         
+    if session_id == "example":
+        latest_session = None
+        latest_time = ""
+        for filename in os.listdir(DATA_DIR):
+            if filename.endswith(".json"):
+                file_path = os.path.join(DATA_DIR, filename)
+                with open(file_path, 'r') as f:
+                    data = json.load(f)
+                    if data.get("timestamp", "") > latest_time:
+                        latest_time = data.get("timestamp", "")
+                        latest_session = data
+        if latest_session:
+            return latest_session
+        raise HTTPException(status_code=404, detail="No sessions available for example")
+        
     for filename in os.listdir(DATA_DIR):
         if filename.startswith(f"session_{session_id}") or filename == f"{session_id}.json":
             # Wait, our spec says format is session_<timestamp>.json and session_id inside
