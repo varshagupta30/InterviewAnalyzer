@@ -1,0 +1,50 @@
+{
+  "session_id": "bca13e39-7007-4a37-a247-923b7f008ec2",
+  "timestamp": "2026-04-19T05:18:46.299807",
+  "transcript": {
+    "full_text": "Pick-a-air shell which I don't like.",
+    "segments": [
+      {
+        "start": 0.0,
+        "end": 12.02,
+        "text": "Pick-a-air shell which I don't like."
+      }
+    ]
+  },
+  "audio_features": {
+    "speech_rate_wpm": 30.0,
+    "pause_count": 0,
+    "avg_pause_duration": 0.5,
+    "filler_words": {
+      "um": 0,
+      "like": 1
+    },
+    "confidence_score": 0.85
+  },
+  "vision_features": {
+    "eye_contact_score": 1.0,
+    "smile_frequency": 0.6,
+    "head_movement_variance": 0.3,
+    "posture_score": 0.8,
+    "emotion_distribution": {
+      "neutral": 0.6,
+      "happy": 0.3,
+      "nervous": 0.1
+    }
+  },
+  "nlp_analysis": {
+    "relevance_score": 0.01,
+    "coherence_score": 0.01,
+    "keyword_match_score": 0.7,
+    "answer_length_score": 0.06
+  },
+  "final_scores": {
+    "confidence": 0.74,
+    "communication": 0.51,
+    "technical": 0.7,
+    "overall": 0.65
+  },
+  "feedback": [
+    "Make sure your answers stay relevant to the topic."
+  ]
+}

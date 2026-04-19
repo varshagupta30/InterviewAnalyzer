@@ -19,7 +19,7 @@ def calculate_scores(audio_features: dict, vision_features: dict, nlp_analysis: 
     # Normalize features to 0-1
     # Audio norm
     audio_score = audio_features.get("confidence_score", 0.0)
-    audio_comm_score = max(0.0, 1.0 - (audio_features.get("pause_count", 0) * 0.05))
+    audio_comm_score = max(0.0, 1.0 - (audio_features.get("pause_count", 0) * 0.15))
     
     # Vision norm
     vision_score = vision_features.get("eye_contact_score", 0.0)
@@ -56,11 +56,11 @@ def calculate_scores(audio_features: dict, vision_features: dict, nlp_analysis: 
     }
     
     feedback = []
-    if audio_features.get("pause_count", 0) > 5:
+    if audio_features.get("pause_count", 0) > 2:
         feedback.append("Try to reduce the number of long pauses.")
-    if vision_features.get("eye_contact_score", 1.0) < 0.6:
+    if vision_features.get("eye_contact_score", 1.0) < 0.8:
         feedback.append("Maintain better eye contact with the camera.")
-    if nlp_analysis.get("relevance_score", 1.0) < 0.6:
+    if nlp_analysis.get("relevance_score", 1.0) < 0.75:
         feedback.append("Make sure your answers stay relevant to the topic.")
     
     if not feedback:

@@ -1,11 +1,25 @@
 from models.whisper_model import transcribe
 import re
 import os
+import tempfile
+from moviepy.editor import VideoFileClip
 
 def analyze_audio(video_path: str, audio_content: bytes | None = None):
-    # If audio_content was provided separately, we could write it and parse
-    # For now, whisper can ingest the video container directly.
-    result = transcribe(video_path)
+    # Extract audio using moviepy to avoid Opus header parsing errors in Whisper
+    try:
+        with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as temp_audio:
+            temp_audio_path = temp_audio.name
+        
+        video = VideoFileClip(video_path)
+        video.audio.write_audiofile(temp_audio_path, logger=None)
+        
+        result = transcribe(temp_audio_path)
+    finally:
+        if 'video' in locals():
+            video.close()
+        if os.path.exists(temp_audio_path):
+            os.remove(temp_audio_path)
+            
     text = result["text"]
     segments = result["segments"]
     
