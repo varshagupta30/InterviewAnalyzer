@@ -87,4 +87,4 @@ InterviewIQ is a cutting-edge, multimodal AI platform designed to provide profes
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
-Built with ❤️ by the InterviewIQ Team.
+Built by Team AI-Tards
